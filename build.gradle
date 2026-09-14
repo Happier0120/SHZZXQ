@@ -23,6 +23,12 @@ dependencies {
     // 参数校验
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // Mybatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.2'
+
+    // MySQL JDBC驱动
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
     // 测试：JUnit5、Spring Test等
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.propertysupervision.persistence.mapper.SupMessageMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.propertysupervision.persistence.entity.SupMessage">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="businessOrderId" column="business_order_id" jdbcType="BIGINT"/>
+            <result property="messageNo" column="message_no" jdbcType="VARCHAR"/>
+            <result property="transactionCode" column="transaction_code" jdbcType="CHAR"/>
+            <result property="direction" column="direction" jdbcType="CHAR"/>
+            <result property="summaryType" column="summary_type" jdbcType="CHAR"/>
+            <result property="childType" column="child_type" jdbcType="CHAR"/>
+            <result property="status" column="status" jdbcType="CHAR"/>
+            <result property="responseCode" column="response_code" jdbcType="CHAR"/>
+            <result property="responseMessage" column="response_message" jdbcType="VARCHAR"/>
+            <result property="errorMessage" column="error_message" jdbcType="VARCHAR"/>
+            <result property="messageTime" column="message_time" jdbcType="TIMESTAMP"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="rawMessage" column="raw_message" jdbcType="BLOB"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,business_order_id,message_no,transaction_code,direction,summary_type,
+        child_type,status,response_code,response_message,error_message,
+        message_time,created_at,updated_at,raw_message
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from sup_message
+        where  id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from sup_message
+        where  id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.propertysupervision.persistence.entity.SupMessage" useGeneratedKeys="true">
+        insert into sup_message
+        ( id,business_order_id,message_no,transaction_code,direction,summary_type,
+        child_type,status,response_code,response_message,error_message,
+        message_time,created_at,updated_at,raw_message)
+        values (#{id,jdbcType=BIGINT},#{businessOrderId,jdbcType=BIGINT},#{messageNo,jdbcType=VARCHAR},#{transactionCode,jdbcType=CHAR},#{direction,jdbcType=CHAR},#{summaryType,jdbcType=CHAR},
+        #{childType,jdbcType=CHAR},#{status,jdbcType=CHAR},#{responseCode,jdbcType=CHAR},#{responseMessage,jdbcType=VARCHAR},#{errorMessage,jdbcType=VARCHAR},
+        #{messageTime,jdbcType=TIMESTAMP},#{createdAt,jdbcType=TIMESTAMP},#{updatedAt,jdbcType=TIMESTAMP},#{rawMessage,jdbcType=BLOB})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.propertysupervision.persistence.entity.SupMessage" useGeneratedKeys="true">
+        insert into sup_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="businessOrderId != null">business_order_id,</if>
+                <if test="messageNo != null">message_no,</if>
+                <if test="transactionCode != null">transaction_code,</if>
+                <if test="direction != null">direction,</if>
+                <if test="summaryType != null">summary_type,</if>
+                <if test="childType != null">child_type,</if>
+                <if test="status != null">status,</if>
+                <if test="responseCode != null">response_code,</if>
+                <if test="responseMessage != null">response_message,</if>
+                <if test="errorMessage != null">error_message,</if>
+                <if test="messageTime != null">message_time,</if>
+                <if test="createdAt != null">created_at,</if>
+                <if test="updatedAt != null">updated_at,</if>
+                <if test="rawMessage != null">raw_message,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=BIGINT},</if>
+                <if test="businessOrderId != null">#{businessOrderId,jdbcType=BIGINT},</if>
+                <if test="messageNo != null">#{messageNo,jdbcType=VARCHAR},</if>
+                <if test="transactionCode != null">#{transactionCode,jdbcType=CHAR},</if>
+                <if test="direction != null">#{direction,jdbcType=CHAR},</if>
+                <if test="summaryType != null">#{summaryType,jdbcType=CHAR},</if>
+                <if test="childType != null">#{childType,jdbcType=CHAR},</if>
+                <if test="status != null">#{status,jdbcType=CHAR},</if>
+                <if test="responseCode != null">#{responseCode,jdbcType=CHAR},</if>
+                <if test="responseMessage != null">#{responseMessage,jdbcType=VARCHAR},</if>
+                <if test="errorMessage != null">#{errorMessage,jdbcType=VARCHAR},</if>
+                <if test="messageTime != null">#{messageTime,jdbcType=TIMESTAMP},</if>
+                <if test="createdAt != null">#{createdAt,jdbcType=TIMESTAMP},</if>
+                <if test="updatedAt != null">#{updatedAt,jdbcType=TIMESTAMP},</if>
+                <if test="rawMessage != null">#{rawMessage,jdbcType=BLOB},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.propertysupervision.persistence.entity.SupMessage">
+        update sup_message
+        <set>
+                <if test="businessOrderId != null">
+                    business_order_id = #{businessOrderId,jdbcType=BIGINT},
+                </if>
+                <if test="messageNo != null">
+                    message_no = #{messageNo,jdbcType=VARCHAR},
+                </if>
+                <if test="transactionCode != null">
+                    transaction_code = #{transactionCode,jdbcType=CHAR},
+                </if>
+                <if test="direction != null">
+                    direction = #{direction,jdbcType=CHAR},
+                </if>
+                <if test="summaryType != null">
+                    summary_type = #{summaryType,jdbcType=CHAR},
+                </if>
+                <if test="childType != null">
+                    child_type = #{childType,jdbcType=CHAR},
+                </if>
+                <if test="status != null">
+                    status = #{status,jdbcType=CHAR},
+                </if>
+                <if test="responseCode != null">
+                    response_code = #{responseCode,jdbcType=CHAR},
+                </if>
+                <if test="responseMessage != null">
+                    response_message = #{responseMessage,jdbcType=VARCHAR},
+                </if>
+                <if test="errorMessage != null">
+                    error_message = #{errorMessage,jdbcType=VARCHAR},
+                </if>
+                <if test="messageTime != null">
+                    message_time = #{messageTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="createdAt != null">
+                    created_at = #{createdAt,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updatedAt != null">
+                    updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+                </if>
+                <if test="rawMessage != null">
+                    raw_message = #{rawMessage,jdbcType=BLOB},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.propertysupervision.persistence.entity.SupMessage">
+        update sup_message
+        set
+            business_order_id =  #{businessOrderId,jdbcType=BIGINT},
+            message_no =  #{messageNo,jdbcType=VARCHAR},
+            transaction_code =  #{transactionCode,jdbcType=CHAR},
+            direction =  #{direction,jdbcType=CHAR},
+            summary_type =  #{summaryType,jdbcType=CHAR},
+            child_type =  #{childType,jdbcType=CHAR},
+            status =  #{status,jdbcType=CHAR},
+            response_code =  #{responseCode,jdbcType=CHAR},
+            response_message =  #{responseMessage,jdbcType=VARCHAR},
+            error_message =  #{errorMessage,jdbcType=VARCHAR},
+            message_time =  #{messageTime,jdbcType=TIMESTAMP},
+            created_at =  #{createdAt,jdbcType=TIMESTAMP},
+            updated_at =  #{updatedAt,jdbcType=TIMESTAMP},
+            raw_message =  #{rawMessage,jdbcType=BLOB}
+        where   id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>
