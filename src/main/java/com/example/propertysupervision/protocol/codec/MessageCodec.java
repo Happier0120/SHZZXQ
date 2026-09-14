@@ -1,11 +1,14 @@
 package com.example.propertysupervision.protocol.codec;
 
+import com.example.propertysupervision.protocol.model.DecodedMessage;
+import com.example.propertysupervision.protocol.model.DecodedSegment;
 import com.example.propertysupervision.protocol.model.ProtocolMessage;
 import com.example.propertysupervision.protocol.model.ProtocolSegment;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -13,6 +16,8 @@ public final class MessageCodec {
 
     private static final int LENGTH_DIGITS = 7;
     private static final int MAX_BODY_LENGTH = 9_999_999;
+    private static final int TRANSACTION_CODE_LENGTH = 4;
+    private static final int HEADER_LENGTH = LENGTH_DIGITS + TRANSACTION_CODE_LENGTH;
 
     private MessageCodec() {
 
@@ -61,6 +66,93 @@ public final class MessageCodec {
         return result;
     }
 
+    public static DecodedMessage decode(byte[] source, int offset) {
+        if (source == null) {
+            throw new IllegalArgumentException("待解码字节数组不能为空");
+        }
+
+        if (offset < 0 || offset > source.length) {
+            throw new IllegalArgumentException("非法解码位置：" + offset);
+        }
+
+        if (source.length - offset < HEADER_LENGTH) {
+            throw new IllegalArgumentException("报文头不完整，至少需要11字节");
+        }
+
+        int bodyLength = parseBodyLength(source, offset);
+
+        if (bodyLength == 0) {
+            throw new IllegalArgumentException("报文体不能为空");
+        }
+
+        int transactionCodeOffset = offset + LENGTH_DIGITS;
+
+        String transactionCode = parseTransactionCode(source, transactionCodeOffset);
+
+        int bodyOffset = offset + HEADER_LENGTH;
+        int remainingLength = source.length - bodyOffset;
+
+        if (remainingLength < bodyLength) {
+            throw new IllegalArgumentException(
+                "报文体不完整，声明长度="
+                    + bodyLength
+                    + "，剩余字节="
+                    + remainingLength
+            );
+        }
+
+        int bodyEndOffset = bodyOffset + bodyLength;
+
+        /*
+         * 只把当前报文体交给SegmentCodec，防止字段解析越过
+         * 当前报文边界，误读到下一条报文。
+         */
+        byte[] body = Arrays.copyOfRange(
+            source,
+            bodyOffset,
+            bodyEndOffset
+        );
+
+        DecodedSegment decodedSummary = SegmentCodec.decode(body, 0);
+
+        ProtocolMessage message = new ProtocolMessage(transactionCode, decodedSummary.getSegment());
+
+        int currentOffset = decodedSummary.getNextOffset();
+        boolean hasNext = decodedSummary.isHasNext();
+
+        while (hasNext) {
+            if (currentOffset >= body.length) {
+                throw new IllegalArgumentException("Bitmap标志表示存在下一段，但报文体已结束");
+            }
+
+            DecodedSegment decodedChild = SegmentCodec.decode(body, currentOffset);
+
+            message.addChildSegment(decodedChild.getSegment());
+
+            currentOffset = decodedChild.getNextOffset();
+            hasNext = decodedChild.isHasNext();
+        }
+
+        if (currentOffset != body.length) {
+            throw new IllegalArgumentException(
+                    "报文体存在未解析数据，剩余字节="
+                        + (body.length - currentOffset)
+            );
+        }
+
+        validateChildCount(
+            message.getSummarySegment(),
+            message.getChildSegments().size()
+        );
+
+        return new DecodedMessage(
+            message,
+            bodyLength,
+            bodyEndOffset
+        );
+    }
+
+
     /**
      * Field3的最大内容长度为6字节，内容必须是非负整数，
      * 并且与实际子报文数量一致。
@@ -94,5 +186,41 @@ public final class MessageCodec {
 
         body.write(encoded, 0, encoded.length);
     }
+
+    private static int parseBodyLength(byte[] source, int offset) {
+
+        int bodyLength = 0;
+
+        for (int i = 0; i < LENGTH_DIGITS; i++) {
+            byte current = source[offset + i];
+
+            if (current < '0' || current > '9') {
+                throw new IllegalArgumentException("报文体长度必须是7位数字");
+            }
+
+            bodyLength = bodyLength * 10 + (current - '0');
+        }
+
+        return bodyLength;
+    }
+
+    private static String parseTransactionCode(byte[] source, int offset) {
+
+        for (int i = 0; i < TRANSACTION_CODE_LENGTH; i++) {
+            byte current = source[offset + i];
+
+            if (current < '0' || current > '9') {
+                throw new IllegalArgumentException("交易代码必须是4位数字");
+            }
+        }
+
+        return new String(
+            source,
+            offset,
+            TRANSACTION_CODE_LENGTH,
+            StandardCharsets.US_ASCII
+        );
+    }
+
 
 }

@@ -1,11 +1,13 @@
 package com.example.propertysupervision.protocol.codec;
 
+import com.example.propertysupervision.protocol.model.DecodedSegment;
 import com.example.propertysupervision.protocol.model.ProtocolSegment;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SegmentCodecTest {
 
@@ -120,4 +122,98 @@ class SegmentCodecTest {
          */
         assertEquals(161, encoded.length);
     }
+
+    @Test
+    void shouldDecode9103SegmentsInSequence() {
+        ProtocolSegment expectedSummary = new ProtocolSegment()
+            .addField(1, "10021")
+            .addField(2, "260721000001910300")
+            .addField(3, "1")
+            .addField(4, "00")
+            .addField(5, "20260721150000")
+            .addField(6, "20260721")
+            .addField(14, "1")
+            .addField(15, "3")
+            .addField(32, "320006392257")
+            .addField(33, "40");
+
+        ProtocolSegment expectedChild = new ProtocolSegment()
+            .addField(1, "11185")
+            .addField(7, "333")
+            .addField(23, "100000000005")
+            .addField(32, "350000000001")
+            .addField(33, "92")
+            .addField(40, "320006392257")
+            .addField(47, "#")
+            .addField(48, "上海春冬物业管理有限公司")
+            .addField(58, "#")
+            .addField(61, "91310115MA1HAY5C10")
+            .addField(65, "315587-03004836374")
+            .addField(105, "0");
+
+        byte[] summaryBytes = SegmentCodec.encode(
+            expectedSummary,
+            true
+        );
+
+        byte[] childBytes = SegmentCodec.encode(
+            expectedChild,
+            false
+        );
+
+        byte[] body = new byte[summaryBytes.length + childBytes.length];
+
+        System.arraycopy(
+            summaryBytes,
+            0,
+            body,
+            0,
+            summaryBytes.length
+        );
+
+        System.arraycopy(
+            childBytes,
+            0,
+            body,
+            summaryBytes.length,
+            childBytes.length
+        );
+
+        DecodedSegment decodedSummary = SegmentCodec.decode(body, 0);
+
+        assertEquals(
+            expectedSummary.getFields(),
+            decodedSummary.getSegment().getFields()
+        );
+        assertTrue(decodedSummary.isHasNext());
+        assertEquals(109, decodedSummary.getNextOffset());
+
+        DecodedSegment decodedChild = SegmentCodec.decode(
+            body,
+            decodedSummary.getNextOffset()
+        );
+
+        assertEquals(
+            expectedChild.getFields(),
+            decodedChild.getSegment().getFields()
+        );
+        assertFalse(decodedChild.isHasNext());
+        assertEquals(270, decodedChild.getNextOffset());
+    }
+
+    @Test
+    void shouldRejectIncompleteBitmap() {
+        byte[] source = "FC06".getBytes(StandardCharsets.US_ASCII);
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> SegmentCodec.decode(source, 0)
+        );
+
+        assertEquals(
+            "报文段Bitmap不完整",
+            exception.getMessage()
+        );
+    }
+
 }

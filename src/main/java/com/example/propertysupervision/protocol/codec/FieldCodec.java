@@ -1,5 +1,6 @@
 package com.example.propertysupervision.protocol.codec;
 
+import com.example.propertysupervision.protocol.model.DecodedField;
 import com.example.propertysupervision.protocol.schema.FieldRegistry;
 import com.example.propertysupervision.protocol.schema.FieldSpec;
 
@@ -103,4 +104,69 @@ public final class FieldCodec {
 
         return result;
     }
+
+    public static DecodedField decode(int fieldNo, byte[] source, int offset) {
+        if (source == null) {
+            throw new IllegalArgumentException("待解码字节数组不能为空");
+        }
+
+        if (offset < 0 || offset > source.length) {
+            throw new IllegalArgumentException("非法解码位置：" + offset);
+        }
+
+        FieldSpec spec = FieldRegistry.get(fieldNo);
+        int lengthDigits = spec.getLengthDigits();
+
+        if (source.length - offset < lengthDigits) {
+            throw new IllegalArgumentException("Field " + fieldNo + " 的长度前缀不完整");
+        }
+
+        int valueLength = 0;
+
+        /*
+         * 长度前缀使用ASCII数字。
+         * 例如“024”会被解析成24。
+         */
+        for (int i = 0; i < lengthDigits; i++) {
+            byte current = source[offset + i];
+
+            if (current < '0' || current > '9') {
+                throw new IllegalArgumentException(
+                    "Field " + fieldNo + " 的长度前缀包含非数字字符"
+                );
+            }
+
+            valueLength = valueLength * 10 + (current - '0');
+        }
+
+        if (valueLength > spec.getMaxLength()) {
+            throw new IllegalArgumentException(
+                "Field " + fieldNo
+                    + " 声明长度超过最大限制，declaredLength="
+                    + valueLength
+                    + "，maxLength="
+                    + spec.getMaxLength()
+            );
+        }
+
+        int valueOffset = offset + lengthDigits;
+        int remainingLength = source.length - valueOffset;
+
+        if (remainingLength < valueLength) {
+            throw new IllegalArgumentException(
+                "Field " + fieldNo
+                    + " 数据不完整，声明长度="
+                    + valueLength
+                    + "，剩余字节="
+                    + remainingLength
+            );
+        }
+
+        String value = new String(source, valueOffset, valueLength, GBK);
+
+        int nextOffset = valueOffset + valueLength;
+
+        return new DecodedField(fieldNo, value, nextOffset);
+    }
+
 }

@@ -1,10 +1,12 @@
 package com.example.propertysupervision.protocol.codec;
 
+import com.example.propertysupervision.protocol.model.DecodedMessage;
 import com.example.propertysupervision.protocol.model.ProtocolMessage;
 import com.example.propertysupervision.protocol.model.ProtocolSegment;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -155,4 +157,100 @@ class MessageCodecTest {
         );
     }
 
+    @Test
+    void shouldDecodeComplete9103Request() {
+        ProtocolSegment summary = new ProtocolSegment()
+            .addField(1, "10021")
+            .addField(2, "260721000001910300")
+            .addField(3, "1")
+            .addField(4, "00")
+            .addField(5, "20260721150000")
+            .addField(6, "20260721")
+            .addField(14, "1")
+            .addField(15, "3")
+            .addField(32, "320006392257")
+            .addField(33, "40");
+
+        ProtocolSegment child = new ProtocolSegment()
+            .addField(1, "11185")
+            .addField(7, "333")
+            .addField(23, "100000000005")
+            .addField(32, "350000000001")
+            .addField(33, "92")
+            .addField(40, "320006392257")
+            .addField(47, "#")
+            .addField(48, "上海春冬物业管理有限公司")
+            .addField(58, "#")
+            .addField(61, "91310115MA1HAY5C10")
+            .addField(65, "315587-03004836374")
+            .addField(105, "0");
+
+        ProtocolMessage original = new ProtocolMessage("9103", summary).addChildSegment(child);
+
+        byte[] encoded = MessageCodec.encode(original);
+
+        DecodedMessage decoded = MessageCodec.decode(encoded, 0);
+
+        assertEquals(270, decoded.getBodyLength());
+        assertEquals(281, decoded.getNextOffset());
+
+        assertEquals(
+            "9103",
+            decoded.getMessage().getTransactionCode()
+        );
+
+        assertEquals(
+            summary.getFields(),
+            decoded.getMessage()
+                .getSummarySegment()
+                .getFields()
+        );
+
+        assertEquals(
+            1,
+            decoded.getMessage()
+                .getChildSegments()
+                .size()
+        );
+
+        assertEquals(
+            child.getFields(),
+            decoded.getMessage()
+                .getChildSegments()
+                .get(0)
+                .getFields()
+        );
+    }
+
+    @Test
+    void shouldRejectInvalidBodyLength() {
+        byte[] source = "0000A109103".getBytes(
+                StandardCharsets.US_ASCII
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> MessageCodec.decode(source, 0)
+        );
+
+        assertEquals(
+                "报文体长度必须是7位数字",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    void shouldRejectIncompleteBody() {
+        byte[] source = "00002709103".getBytes(StandardCharsets.US_ASCII);
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> MessageCodec.decode(source, 0)
+        );
+
+        assertEquals(
+            "报文体不完整，声明长度=270，剩余字节=0",
+            exception.getMessage()
+        );
+    }
 }

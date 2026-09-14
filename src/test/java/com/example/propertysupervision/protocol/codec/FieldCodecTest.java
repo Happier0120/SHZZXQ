@@ -1,10 +1,12 @@
 package com.example.propertysupervision.protocol.codec;
 
+import com.example.propertysupervision.protocol.model.DecodedField;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FieldCodecTest {
 
@@ -68,6 +70,50 @@ class FieldCodecTest {
     void shouldEncodeField33() {
         byte[] encoded = FieldCodec.encode(33, "40");
         assertEquals("240", new String(encoded, GBK));
+    }
+
+    @Test
+    void shouldDecodeFieldsByOffset() {
+        byte[] source = ("510021" + "24上海春冬物业管理有限公司").getBytes(GBK);
+
+        DecodedField field1 = FieldCodec.decode(1, source, 0);
+
+        assertEquals(1, field1.getFieldNo());
+        assertEquals("10021", field1.getValue());
+        assertEquals(6, field1.getNextOffset());
+
+        DecodedField field48 = FieldCodec.decode(48, source, field1.getNextOffset());
+
+        assertEquals(48, field48.getFieldNo());
+        assertEquals("上海春冬物业管理有限公司", field48.getValue());
+        assertEquals(source.length, field48.getNextOffset());
+    }
+
+    @Test
+    void shouldRejectNonNumericLengthPrefix() {
+        byte[] source = "A10021".getBytes(GBK);
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> FieldCodec.decode(1, source, 0)
+        );
+
+        assertEquals("Field 1 的长度前缀包含非数字字符", exception.getMessage());
+    }
+
+    @Test
+    void shouldRejectIncompleteFieldValue() {
+        byte[] source = "5100".getBytes(GBK);
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> FieldCodec.decode(1, source, 0)
+        );
+
+        assertEquals(
+            "Field 1 数据不完整，声明长度=5，剩余字节=3",
+            exception.getMessage()
+        );
     }
 
 }

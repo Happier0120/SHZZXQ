@@ -1,6 +1,10 @@
 package com.example.propertysupervision.protocol.codec;
 
+import com.example.propertysupervision.protocol.model.DecodedBitmap;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public final class BitmapCodec {
     private BitmapCodec() {
@@ -79,4 +83,44 @@ public final class BitmapCodec {
 
         return hex.toString();
     }
+
+    public static DecodedBitmap decode(String bitmap) {
+        if (bitmap == null) {
+            throw new IllegalArgumentException("Bitmap不能为空");
+        }
+
+        if (!bitmap.matches("[0-9A-Fa-f]{32}")) {
+            throw new IllegalArgumentException("Bitmap必须是32位十六进制字符串");
+        }
+
+        List<Integer> fieldNos = new ArrayList<>();
+
+        /**
+         * Field 1～127对应Bitmap第1～127位。
+         * 每个十六进制字符表示4个bit。
+         */
+        for (int fieldNo = 1; fieldNo <= 127; fieldNo++) {
+            int charIndex = (fieldNo - 1) / 4;
+            int bitIndex = (fieldNo - 1) % 4;
+
+            int hexValue = Character.digit(bitmap.charAt(charIndex), 16);
+
+            int mask = 1 << (3 - bitIndex);
+
+            if ((hexValue & mask) != 0) {
+                fieldNos.add(fieldNo);
+            }
+        }
+
+        /**
+         * 第128位是最后一个十六进制字符的最低位。
+         */
+        int lastHexValue = Character.digit(bitmap.charAt(31), 16);
+
+        boolean hasNext = (lastHexValue & 1) != 0;
+
+        return new DecodedBitmap(fieldNos, hasNext);
+    }
+
+
 }

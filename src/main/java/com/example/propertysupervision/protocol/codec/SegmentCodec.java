@@ -1,5 +1,8 @@
 package com.example.propertysupervision.protocol.codec;
 
+import com.example.propertysupervision.protocol.model.DecodedBitmap;
+import com.example.propertysupervision.protocol.model.DecodedField;
+import com.example.propertysupervision.protocol.model.DecodedSegment;
 import com.example.propertysupervision.protocol.model.ProtocolSegment;
 
 import java.io.ByteArrayOutputStream;
@@ -7,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public final class SegmentCodec {
+
+    private static final int BITMAP_LENGTH = 32;
 
     private SegmentCodec() {
     }
@@ -68,4 +73,59 @@ public final class SegmentCodec {
 
         return output.toByteArray();
     }
+
+    public static DecodedSegment decode(byte[] source, int offset) {
+        if (source == null) {
+            throw new IllegalArgumentException("待解码字节数组不能为空");
+        }
+
+        if (offset < 0 || offset > source.length) {
+            throw new IllegalArgumentException("非法解码位置：" + offset);
+        }
+
+        if (source.length - offset < BITMAP_LENGTH) {
+            throw new IllegalArgumentException("报文段Bitmap不完整");
+        }
+
+        String bitmap = new String(
+            source,
+            offset,
+            BITMAP_LENGTH,
+            StandardCharsets.US_ASCII
+        );
+
+        DecodedBitmap decodedBitmap = BitmapCodec.decode(bitmap);
+
+        if (decodedBitmap.getFieldNos().isEmpty()) {
+            throw new IllegalArgumentException(
+                "报文段Bitmap中没有Field"
+            );
+        }
+
+        ProtocolSegment segment = new ProtocolSegment();
+        int currentOffset = offset + BITMAP_LENGTH;
+
+        for (Integer fieldNo : decodedBitmap.getFieldNos()) {
+            DecodedField decodedField = FieldCodec.decode(
+                fieldNo,
+                source,
+                currentOffset
+            );
+
+            segment.addField(
+                fieldNo,
+                decodedField.getValue()
+            );
+
+            currentOffset = decodedField.getNextOffset();
+        }
+
+        return new DecodedSegment(
+            segment,
+            decodedBitmap.hasNext(),
+            currentOffset
+        );
+
+    }
+
 }
