@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class BankProtocolGateway {
+public class PropertyCenterProtocolGateway {
 
     private final SocketProtocolClient socketProtocolClient;
 
-    public BankProtocolGateway(SocketProtocolClient socketProtocolClient) {
+    public PropertyCenterProtocolGateway(SocketProtocolClient socketProtocolClient) {
         this.socketProtocolClient = socketProtocolClient;
     }
 
@@ -20,8 +20,8 @@ public class BankProtocolGateway {
         try {
             return socketProtocolClient.exchange(request);
         } catch (IOException exception) {
-            throw new BankCommunicationException(
-                "与银行Socket通信失败",
+            throw new PropertyCenterCommunicationException(
+                "与物业中心Socket通信失败",
                 exception
             );
         }

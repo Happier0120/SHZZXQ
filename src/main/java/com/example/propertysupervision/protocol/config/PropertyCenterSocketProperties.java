@@ -9,8 +9,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
 @Validated
-@ConfigurationProperties(prefix = "bank.socket")
-public class BankSocketProperties {
+@ConfigurationProperties(prefix = "property-center.socket")
+public class PropertyCenterSocketProperties {
 
     @NotBlank
     private String host;

@@ -6,11 +6,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(BankSocketProperties.class)
-public class SocketProtocolConfiguration {
+@EnableConfigurationProperties(PropertyCenterSocketProperties.class)
+public class PropertyCenterSocketConfiguration {
 
     @Bean
-    public SocketProtocolClient socketProtocolClient(BankSocketProperties properties) {
+    public SocketProtocolClient socketProtocolClient(PropertyCenterSocketProperties properties) {
 
         return new SocketProtocolClient(
             properties.getHost(),
