@@ -11,13 +11,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.dao.DuplicateKeyException;
 
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -33,6 +36,42 @@ class AccountOpening9103HandlerTest {
 
     private static final String MESSAGE_NO =
             "260721000001910300";
+
+    @Test
+    void shouldRequestRetryForConcurrentMessageNoConflict() {
+        DuplicateKeyException exception = new DuplicateKeyException("插入业务单失败",
+                new SQLException("Duplicate entry '" + MESSAGE_NO
+                        + "' for key 'sup_business_order.uk_sup_business_order_message_no'",
+                        "23000", 1062));
+
+        RuntimeException actual = handleWithInsertFailure(exception);
+
+        assertEquals(ConcurrentBusinessOrderCreationException.class, actual.getClass());
+        assertSame(exception, actual.getCause());
+    }
+
+    @Test
+    void shouldNotTreatOtherUniqueConstraintsAsRepeatedRequest() {
+        DuplicateKeyException exception = new DuplicateKeyException("其他唯一键冲突",
+                new SQLException("Duplicate entry '1' for key 'PRIMARY'", "23000", 1062));
+
+        assertSame(exception, handleWithInsertFailure(exception));
+    }
+
+    private RuntimeException handleWithInsertFailure(DuplicateKeyException exception) {
+        SupBusinessOrderMapper orderMapper = mock(SupBusinessOrderMapper.class);
+        SupAccountChangeMapper changeMapper = mock(SupAccountChangeMapper.class);
+        SupMessageMapper messageMapper = mock(SupMessageMapper.class);
+        when(orderMapper.insertSelective(any(SupBusinessOrder.class))).thenThrow(exception);
+        AccountOpening9103Handler handler = createHandler(
+                orderMapper, changeMapper, messageMapper, new ObjectMapper());
+
+        RuntimeException actual = assertThrows(RuntimeException.class,
+                () -> handler.handle(MESSAGE_ID, createComplete9103Message("92")));
+
+        verifyNoInteractions(changeMapper, messageMapper);
+        return actual;
+    }
 
     @Test
     void shouldSupportTransactionCode9103() {

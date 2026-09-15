@@ -24,13 +24,23 @@ public class StoredInboundMessageProcessor {
     private static final int MAX_ERROR_MESSAGE_LENGTH = 512;
 
     private final SupMessageMapper supMessageMapper;
+    private final InboundTransactionRouter transactionRouter;
 
-    public StoredInboundMessageProcessor(SupMessageMapper supMessageMapper) {
+    public StoredInboundMessageProcessor(
+        SupMessageMapper supMessageMapper,
+        InboundTransactionRouter transactionRouter) {
+
         if (supMessageMapper == null) {
             throw new IllegalArgumentException("SupMessageMapper不能为空");
         }
 
+        if (transactionRouter == null) {
+            throw new IllegalArgumentException("InboundTransactionRouter不能为空");
+        }
+
         this.supMessageMapper = supMessageMapper;
+        this.transactionRouter = transactionRouter;
+
     }
 
     @Transactional
@@ -69,15 +79,26 @@ public class StoredInboundMessageProcessor {
                 "更新报文解析字段"
             );
 
-            /*
-             * 目前只完成了解析，
-             * 尚未交给具体交易处理器，因此继续保持status=0。
-             */
+
+            transactionRouter.dispatch(
+                messageId,
+                parsedFields.getProtocolMessage()
+            );
+
+            int successRows = supMessageMapper.markProcessingSucceeded(messageId);
+
+            assertOneRowUpdated(
+                successRows,
+                messageId,
+                "更新报文处理成功状态"
+            );
+
             LOGGER.info(
-                "入站报文解析成功，messageId={}，transactionCode={}",
+                "入站报文处理成功，messageId={}，transactionCode={}",
                 messageId,
                 storedMessage.getTransactionCode()
             );
+
 
         } catch (IllegalArgumentException exception) {
             markParseFailed(messageId, exception);
@@ -124,7 +145,7 @@ public class StoredInboundMessageProcessor {
             );
         }
 
-        return new ParsedFields(messageNo, summaryType, childType);
+        return new ParsedFields(protocolMessage, messageNo, summaryType, childType);
 
     }
 
@@ -190,14 +211,20 @@ public class StoredInboundMessageProcessor {
 
     private static final class ParsedFields {
 
+        private final ProtocolMessage protocolMessage;
         private final String messageNo;
         private final String summaryType;
         private final String childType;
 
-        private ParsedFields(String messageNo, String summaryType, String childType) {
+        private ParsedFields(ProtocolMessage protocolMessage, String messageNo, String summaryType, String childType) {
+            this.protocolMessage = protocolMessage;
             this.messageNo = messageNo;
             this.summaryType = summaryType;
             this.childType = childType;
+        }
+
+        private ProtocolMessage getProtocolMessage() {
+            return protocolMessage;
         }
 
         private String getMessageNo() {

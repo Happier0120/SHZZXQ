@@ -182,4 +182,14 @@
         and business_order_id is null
     </update>
 
+    <update id="markProcessingSucceeded">
+        update sup_message
+        set status = '1',
+        error_message = null,
+        updated_at = current_timestamp
+        where id = #{id,jdbcType=BIGINT}
+        and status = '0'
+        and business_order_id is not null
+    </update>
+
 </mapper>

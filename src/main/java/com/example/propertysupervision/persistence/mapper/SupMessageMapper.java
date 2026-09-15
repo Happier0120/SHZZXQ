@@ -41,4 +41,8 @@ public interface SupMessageMapper {
             @Param("businessOrderId") Long businessOrderId
     );
 
+    int markProcessingSucceeded(
+            @Param("id") Long id
+    );
+
 }

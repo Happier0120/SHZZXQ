@@ -16,7 +16,8 @@ import static org.mockito.Mockito.doAnswer;
 
 @SpringBootTest(classes = {
         InboundMessageAsyncConfiguration.class,
-        AsyncInboundMessageDispatcher.class
+        AsyncInboundMessageDispatcher.class,
+        RetryingStoredInboundMessageProcessor.class
 })
 class AsyncInboundMessageDispatcherTest {
 

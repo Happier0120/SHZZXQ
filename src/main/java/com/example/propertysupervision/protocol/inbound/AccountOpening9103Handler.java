@@ -9,10 +9,12 @@ import com.example.propertysupervision.protocol.model.ProtocolMessage;
 import com.example.propertysupervision.protocol.model.ProtocolSegment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -334,8 +336,16 @@ public class AccountOpening9103Handler
                 BUSINESS_STATUS_PENDING
         );
 
-        int affectedRows =
-                businessOrderMapper.insertSelective(order);
+        int affectedRows;
+        try {
+            affectedRows = businessOrderMapper.insertSelective(order);
+        } catch (DuplicateKeyException exception) {
+            if (isMessageNoConflict(exception)) {
+                // 不在当前事务里继续查询：让异常穿过事务代理，先完整回滚。
+                throw new ConcurrentBusinessOrderCreationException(request.messageNo, exception);
+            }
+            throw exception;
+        }
 
         assertOneRowUpdated(
                 affectedRows,
@@ -349,6 +359,22 @@ public class AccountOpening9103Handler
         }
 
         return order.getId();
+    }
+
+    private boolean isMessageNoConflict(DuplicateKeyException exception) {
+        for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
+            if (cause instanceof SQLException) {
+                SQLException sqlException = (SQLException) cause;
+                String detail = sqlException.getMessage();
+                // MySQL 1062；只接受指定唯一索引，其他唯一键冲突不能当作重复报文。
+                if (sqlException.getErrorCode() == 1062 && detail != null
+                        && (detail.contains("'sup_business_order.uk_sup_business_order_message_no'")
+                        || detail.contains("'uk_sup_business_order_message_no'"))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void createAccountChange(

@@ -12,13 +12,13 @@ public class AsyncInboundMessageDispatcher implements InboundMessageDispatcher {
         AsyncInboundMessageDispatcher.class
     );
 
-    private final StoredInboundMessageProcessor messageProcessor;
+    private final RetryingStoredInboundMessageProcessor messageProcessor;
 
-    public AsyncInboundMessageDispatcher(StoredInboundMessageProcessor messageProcessor) {
+    public AsyncInboundMessageDispatcher(RetryingStoredInboundMessageProcessor messageProcessor) {
 
         if (messageProcessor == null) {
             throw new IllegalArgumentException(
-                    "StoredInboundMessageProcessor不能为空"
+                    "RetryingStoredInboundMessageProcessor不能为空"
             );
         }
 
