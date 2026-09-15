@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.propertysupervision.persistence.mapper.SupBusinessOrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.propertysupervision.persistence.entity.SupBusinessOrder">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="initiatingMessageNo" column="initiating_message_no" jdbcType="VARCHAR"/>
+            <result property="transactionCode" column="transaction_code" jdbcType="CHAR"/>
+            <result property="businessKey" column="business_key" jdbcType="VARCHAR"/>
+            <result property="initiator" column="initiator" jdbcType="CHAR"/>
+            <result property="status" column="status" jdbcType="CHAR"/>
+            <result property="relatedBusinessOrderId" column="related_business_order_id" jdbcType="BIGINT"/>
+            <result property="startedAt" column="started_at" jdbcType="TIMESTAMP"/>
+            <result property="finishedAt" column="finished_at" jdbcType="TIMESTAMP"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,initiating_message_no,transaction_code,business_key,initiator,status,
+        related_business_order_id,started_at,finished_at,created_at,updated_at
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from sup_business_order
+        where  id = #{id,jdbcType=BIGINT} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from sup_business_order
+        where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.propertysupervision.persistence.entity.SupBusinessOrder" useGeneratedKeys="true">
+        insert into sup_business_order
+        ( id,initiating_message_no,transaction_code,business_key,initiator,status,
+        related_business_order_id,started_at,finished_at,created_at,updated_at)
+        values (#{id,jdbcType=BIGINT},#{initiatingMessageNo,jdbcType=VARCHAR},#{transactionCode,jdbcType=CHAR},#{businessKey,jdbcType=VARCHAR},#{initiator,jdbcType=CHAR},#{status,jdbcType=CHAR},
+        #{relatedBusinessOrderId,jdbcType=BIGINT},#{startedAt,jdbcType=TIMESTAMP},#{finishedAt,jdbcType=TIMESTAMP},#{createdAt,jdbcType=TIMESTAMP},#{updatedAt,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.propertysupervision.persistence.entity.SupBusinessOrder" useGeneratedKeys="true">
+        insert into sup_business_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="initiatingMessageNo != null">initiating_message_no,</if>
+                <if test="transactionCode != null">transaction_code,</if>
+                <if test="businessKey != null">business_key,</if>
+                <if test="initiator != null">initiator,</if>
+                <if test="status != null">status,</if>
+                <if test="relatedBusinessOrderId != null">related_business_order_id,</if>
+                <if test="startedAt != null">started_at,</if>
+                <if test="finishedAt != null">finished_at,</if>
+                <if test="createdAt != null">created_at,</if>
+                <if test="updatedAt != null">updated_at,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=BIGINT},</if>
+                <if test="initiatingMessageNo != null">#{initiatingMessageNo,jdbcType=VARCHAR},</if>
+                <if test="transactionCode != null">#{transactionCode,jdbcType=CHAR},</if>
+                <if test="businessKey != null">#{businessKey,jdbcType=VARCHAR},</if>
+                <if test="initiator != null">#{initiator,jdbcType=CHAR},</if>
+                <if test="status != null">#{status,jdbcType=CHAR},</if>
+                <if test="relatedBusinessOrderId != null">#{relatedBusinessOrderId,jdbcType=BIGINT},</if>
+                <if test="startedAt != null">#{startedAt,jdbcType=TIMESTAMP},</if>
+                <if test="finishedAt != null">#{finishedAt,jdbcType=TIMESTAMP},</if>
+                <if test="createdAt != null">#{createdAt,jdbcType=TIMESTAMP},</if>
+                <if test="updatedAt != null">#{updatedAt,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.propertysupervision.persistence.entity.SupBusinessOrder">
+        update sup_business_order
+        <set>
+                <if test="initiatingMessageNo != null">
+                    initiating_message_no = #{initiatingMessageNo,jdbcType=VARCHAR},
+                </if>
+                <if test="transactionCode != null">
+                    transaction_code = #{transactionCode,jdbcType=CHAR},
+                </if>
+                <if test="businessKey != null">
+                    business_key = #{businessKey,jdbcType=VARCHAR},
+                </if>
+                <if test="initiator != null">
+                    initiator = #{initiator,jdbcType=CHAR},
+                </if>
+                <if test="status != null">
+                    status = #{status,jdbcType=CHAR},
+                </if>
+                <if test="relatedBusinessOrderId != null">
+                    related_business_order_id = #{relatedBusinessOrderId,jdbcType=BIGINT},
+                </if>
+                <if test="startedAt != null">
+                    started_at = #{startedAt,jdbcType=TIMESTAMP},
+                </if>
+                <if test="finishedAt != null">
+                    finished_at = #{finishedAt,jdbcType=TIMESTAMP},
+                </if>
+                <if test="createdAt != null">
+                    created_at = #{createdAt,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updatedAt != null">
+                    updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.propertysupervision.persistence.entity.SupBusinessOrder">
+        update sup_business_order
+        set 
+            initiating_message_no =  #{initiatingMessageNo,jdbcType=VARCHAR},
+            transaction_code =  #{transactionCode,jdbcType=CHAR},
+            business_key =  #{businessKey,jdbcType=VARCHAR},
+            initiator =  #{initiator,jdbcType=CHAR},
+            status =  #{status,jdbcType=CHAR},
+            related_business_order_id =  #{relatedBusinessOrderId,jdbcType=BIGINT},
+            started_at =  #{startedAt,jdbcType=TIMESTAMP},
+            finished_at =  #{finishedAt,jdbcType=TIMESTAMP},
+            created_at =  #{createdAt,jdbcType=TIMESTAMP},
+            updated_at =  #{updatedAt,jdbcType=TIMESTAMP}
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+</mapper>

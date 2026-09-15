@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.propertysupervision.persistence.mapper.SupAccountMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.propertysupervision.persistence.entity.SupAccount">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="platformFundNo" column="platform_fund_no" jdbcType="VARCHAR"/>
+            <result property="communityNo" column="community_no" jdbcType="VARCHAR"/>
+            <result property="accountType" column="account_type" jdbcType="CHAR"/>
+            <result property="mixedCommunityFlag" column="mixed_community_flag" jdbcType="CHAR"/>
+            <result property="propertyCompanyName" column="property_company_name" jdbcType="VARCHAR"/>
+            <result property="propertyCreditCode" column="property_credit_code" jdbcType="VARCHAR"/>
+            <result property="communityAccountNo1" column="community_account_no_1" jdbcType="VARCHAR"/>
+            <result property="communityAccountBankNo1" column="community_account_bank_no_1" jdbcType="VARCHAR"/>
+            <result property="communityAccountNo2" column="community_account_no_2" jdbcType="VARCHAR"/>
+            <result property="communityAccountBankNo2" column="community_account_bank_no_2" jdbcType="VARCHAR"/>
+            <result property="regulatoryAccountName" column="regulatory_account_name" jdbcType="VARCHAR"/>
+            <result property="regulatoryAccountNo" column="regulatory_account_no" jdbcType="VARCHAR"/>
+            <result property="regulatoryAccountBankNo" column="regulatory_account_bank_no" jdbcType="VARCHAR"/>
+            <result property="receiptBankName" column="receipt_bank_name" jdbcType="VARCHAR"/>
+            <result property="receiptAccountNo" column="receipt_account_no" jdbcType="VARCHAR"/>
+            <result property="receiptAccountBankNo" column="receipt_account_bank_no" jdbcType="VARCHAR"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,platform_fund_no,community_no,account_type,mixed_community_flag,property_company_name,
+        property_credit_code,community_account_no_1,community_account_bank_no_1,community_account_no_2,community_account_bank_no_2,
+        regulatory_account_name,regulatory_account_no,regulatory_account_bank_no,receipt_bank_name,receipt_account_no,
+        receipt_account_bank_no,created_at,updated_at
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from sup_account
+        where  id = #{id,jdbcType=BIGINT} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from sup_account
+        where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.propertysupervision.persistence.entity.SupAccount" useGeneratedKeys="true">
+        insert into sup_account
+        ( id,platform_fund_no,community_no,account_type,mixed_community_flag,property_company_name,
+        property_credit_code,community_account_no_1,community_account_bank_no_1,community_account_no_2,community_account_bank_no_2,
+        regulatory_account_name,regulatory_account_no,regulatory_account_bank_no,receipt_bank_name,receipt_account_no,
+        receipt_account_bank_no,created_at,updated_at)
+        values (#{id,jdbcType=BIGINT},#{platformFundNo,jdbcType=VARCHAR},#{communityNo,jdbcType=VARCHAR},#{accountType,jdbcType=CHAR},#{mixedCommunityFlag,jdbcType=CHAR},#{propertyCompanyName,jdbcType=VARCHAR},
+        #{propertyCreditCode,jdbcType=VARCHAR},#{communityAccountNo1,jdbcType=VARCHAR},#{communityAccountBankNo1,jdbcType=VARCHAR},#{communityAccountNo2,jdbcType=VARCHAR},#{communityAccountBankNo2,jdbcType=VARCHAR},
+        #{regulatoryAccountName,jdbcType=VARCHAR},#{regulatoryAccountNo,jdbcType=VARCHAR},#{regulatoryAccountBankNo,jdbcType=VARCHAR},#{receiptBankName,jdbcType=VARCHAR},#{receiptAccountNo,jdbcType=VARCHAR},
+        #{receiptAccountBankNo,jdbcType=VARCHAR},#{createdAt,jdbcType=TIMESTAMP},#{updatedAt,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.propertysupervision.persistence.entity.SupAccount" useGeneratedKeys="true">
+        insert into sup_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="platformFundNo != null">platform_fund_no,</if>
+                <if test="communityNo != null">community_no,</if>
+                <if test="accountType != null">account_type,</if>
+                <if test="mixedCommunityFlag != null">mixed_community_flag,</if>
+                <if test="propertyCompanyName != null">property_company_name,</if>
+                <if test="propertyCreditCode != null">property_credit_code,</if>
+                <if test="communityAccountNo1 != null">community_account_no_1,</if>
+                <if test="communityAccountBankNo1 != null">community_account_bank_no_1,</if>
+                <if test="communityAccountNo2 != null">community_account_no_2,</if>
+                <if test="communityAccountBankNo2 != null">community_account_bank_no_2,</if>
+                <if test="regulatoryAccountName != null">regulatory_account_name,</if>
+                <if test="regulatoryAccountNo != null">regulatory_account_no,</if>
+                <if test="regulatoryAccountBankNo != null">regulatory_account_bank_no,</if>
+                <if test="receiptBankName != null">receipt_bank_name,</if>
+                <if test="receiptAccountNo != null">receipt_account_no,</if>
+                <if test="receiptAccountBankNo != null">receipt_account_bank_no,</if>
+                <if test="createdAt != null">created_at,</if>
+                <if test="updatedAt != null">updated_at,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=BIGINT},</if>
+                <if test="platformFundNo != null">#{platformFundNo,jdbcType=VARCHAR},</if>
+                <if test="communityNo != null">#{communityNo,jdbcType=VARCHAR},</if>
+                <if test="accountType != null">#{accountType,jdbcType=CHAR},</if>
+                <if test="mixedCommunityFlag != null">#{mixedCommunityFlag,jdbcType=CHAR},</if>
+                <if test="propertyCompanyName != null">#{propertyCompanyName,jdbcType=VARCHAR},</if>
+                <if test="propertyCreditCode != null">#{propertyCreditCode,jdbcType=VARCHAR},</if>
+                <if test="communityAccountNo1 != null">#{communityAccountNo1,jdbcType=VARCHAR},</if>
+                <if test="communityAccountBankNo1 != null">#{communityAccountBankNo1,jdbcType=VARCHAR},</if>
+                <if test="communityAccountNo2 != null">#{communityAccountNo2,jdbcType=VARCHAR},</if>
+                <if test="communityAccountBankNo2 != null">#{communityAccountBankNo2,jdbcType=VARCHAR},</if>
+                <if test="regulatoryAccountName != null">#{regulatoryAccountName,jdbcType=VARCHAR},</if>
+                <if test="regulatoryAccountNo != null">#{regulatoryAccountNo,jdbcType=VARCHAR},</if>
+                <if test="regulatoryAccountBankNo != null">#{regulatoryAccountBankNo,jdbcType=VARCHAR},</if>
+                <if test="receiptBankName != null">#{receiptBankName,jdbcType=VARCHAR},</if>
+                <if test="receiptAccountNo != null">#{receiptAccountNo,jdbcType=VARCHAR},</if>
+                <if test="receiptAccountBankNo != null">#{receiptAccountBankNo,jdbcType=VARCHAR},</if>
+                <if test="createdAt != null">#{createdAt,jdbcType=TIMESTAMP},</if>
+                <if test="updatedAt != null">#{updatedAt,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.propertysupervision.persistence.entity.SupAccount">
+        update sup_account
+        <set>
+                <if test="platformFundNo != null">
+                    platform_fund_no = #{platformFundNo,jdbcType=VARCHAR},
+                </if>
+                <if test="communityNo != null">
+                    community_no = #{communityNo,jdbcType=VARCHAR},
+                </if>
+                <if test="accountType != null">
+                    account_type = #{accountType,jdbcType=CHAR},
+                </if>
+                <if test="mixedCommunityFlag != null">
+                    mixed_community_flag = #{mixedCommunityFlag,jdbcType=CHAR},
+                </if>
+                <if test="propertyCompanyName != null">
+                    property_company_name = #{propertyCompanyName,jdbcType=VARCHAR},
+                </if>
+                <if test="propertyCreditCode != null">
+                    property_credit_code = #{propertyCreditCode,jdbcType=VARCHAR},
+                </if>
+                <if test="communityAccountNo1 != null">
+                    community_account_no_1 = #{communityAccountNo1,jdbcType=VARCHAR},
+                </if>
+                <if test="communityAccountBankNo1 != null">
+                    community_account_bank_no_1 = #{communityAccountBankNo1,jdbcType=VARCHAR},
+                </if>
+                <if test="communityAccountNo2 != null">
+                    community_account_no_2 = #{communityAccountNo2,jdbcType=VARCHAR},
+                </if>
+                <if test="communityAccountBankNo2 != null">
+                    community_account_bank_no_2 = #{communityAccountBankNo2,jdbcType=VARCHAR},
+                </if>
+                <if test="regulatoryAccountName != null">
+                    regulatory_account_name = #{regulatoryAccountName,jdbcType=VARCHAR},
+                </if>
+                <if test="regulatoryAccountNo != null">
+                    regulatory_account_no = #{regulatoryAccountNo,jdbcType=VARCHAR},
+                </if>
+                <if test="regulatoryAccountBankNo != null">
+                    regulatory_account_bank_no = #{regulatoryAccountBankNo,jdbcType=VARCHAR},
+                </if>
+                <if test="receiptBankName != null">
+                    receipt_bank_name = #{receiptBankName,jdbcType=VARCHAR},
+                </if>
+                <if test="receiptAccountNo != null">
+                    receipt_account_no = #{receiptAccountNo,jdbcType=VARCHAR},
+                </if>
+                <if test="receiptAccountBankNo != null">
+                    receipt_account_bank_no = #{receiptAccountBankNo,jdbcType=VARCHAR},
+                </if>
+                <if test="createdAt != null">
+                    created_at = #{createdAt,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updatedAt != null">
+                    updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.propertysupervision.persistence.entity.SupAccount">
+        update sup_account
+        set 
+            platform_fund_no =  #{platformFundNo,jdbcType=VARCHAR},
+            community_no =  #{communityNo,jdbcType=VARCHAR},
+            account_type =  #{accountType,jdbcType=CHAR},
+            mixed_community_flag =  #{mixedCommunityFlag,jdbcType=CHAR},
+            property_company_name =  #{propertyCompanyName,jdbcType=VARCHAR},
+            property_credit_code =  #{propertyCreditCode,jdbcType=VARCHAR},
+            community_account_no_1 =  #{communityAccountNo1,jdbcType=VARCHAR},
+            community_account_bank_no_1 =  #{communityAccountBankNo1,jdbcType=VARCHAR},
+            community_account_no_2 =  #{communityAccountNo2,jdbcType=VARCHAR},
+            community_account_bank_no_2 =  #{communityAccountBankNo2,jdbcType=VARCHAR},
+            regulatory_account_name =  #{regulatoryAccountName,jdbcType=VARCHAR},
+            regulatory_account_no =  #{regulatoryAccountNo,jdbcType=VARCHAR},
+            regulatory_account_bank_no =  #{regulatoryAccountBankNo,jdbcType=VARCHAR},
+            receipt_bank_name =  #{receiptBankName,jdbcType=VARCHAR},
+            receipt_account_no =  #{receiptAccountNo,jdbcType=VARCHAR},
+            receipt_account_bank_no =  #{receiptAccountBankNo,jdbcType=VARCHAR},
+            created_at =  #{createdAt,jdbcType=TIMESTAMP},
+            updated_at =  #{updatedAt,jdbcType=TIMESTAMP}
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+</mapper>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.propertysupervision.persistence.mapper.SupAccountChangeMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.propertysupervision.persistence.entity.SupAccountChange">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="businessOrderId" column="business_order_id" jdbcType="BIGINT"/>
+            <result property="accountId" column="account_id" jdbcType="BIGINT"/>
+            <result property="platformFundNo" column="platform_fund_no" jdbcType="VARCHAR"/>
+            <result property="communityNo" column="community_no" jdbcType="VARCHAR"/>
+            <result property="accountType" column="account_type" jdbcType="CHAR"/>
+            <result property="beforeData" column="before_data" jdbcType="VARCHAR"/>
+            <result property="requestData" column="request_data" jdbcType="VARCHAR"/>
+            <result property="afterData" column="after_data" jdbcType="VARCHAR"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,business_order_id,account_id,platform_fund_no,community_no,account_type,
+        before_data,request_data,after_data,created_at,updated_at
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from sup_account_change
+        where  id = #{id,jdbcType=BIGINT} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from sup_account_change
+        where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.propertysupervision.persistence.entity.SupAccountChange" useGeneratedKeys="true">
+        insert into sup_account_change
+        ( id,business_order_id,account_id,platform_fund_no,community_no,account_type,
+        before_data,request_data,after_data,created_at,updated_at)
+        values (#{id,jdbcType=BIGINT},#{businessOrderId,jdbcType=BIGINT},#{accountId,jdbcType=BIGINT},#{platformFundNo,jdbcType=VARCHAR},#{communityNo,jdbcType=VARCHAR},#{accountType,jdbcType=CHAR},
+        #{beforeData,jdbcType=VARCHAR},#{requestData,jdbcType=VARCHAR},#{afterData,jdbcType=VARCHAR},#{createdAt,jdbcType=TIMESTAMP},#{updatedAt,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.propertysupervision.persistence.entity.SupAccountChange" useGeneratedKeys="true">
+        insert into sup_account_change
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="businessOrderId != null">business_order_id,</if>
+                <if test="accountId != null">account_id,</if>
+                <if test="platformFundNo != null">platform_fund_no,</if>
+                <if test="communityNo != null">community_no,</if>
+                <if test="accountType != null">account_type,</if>
+                <if test="beforeData != null">before_data,</if>
+                <if test="requestData != null">request_data,</if>
+                <if test="afterData != null">after_data,</if>
+                <if test="createdAt != null">created_at,</if>
+                <if test="updatedAt != null">updated_at,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=BIGINT},</if>
+                <if test="businessOrderId != null">#{businessOrderId,jdbcType=BIGINT},</if>
+                <if test="accountId != null">#{accountId,jdbcType=BIGINT},</if>
+                <if test="platformFundNo != null">#{platformFundNo,jdbcType=VARCHAR},</if>
+                <if test="communityNo != null">#{communityNo,jdbcType=VARCHAR},</if>
+                <if test="accountType != null">#{accountType,jdbcType=CHAR},</if>
+                <if test="beforeData != null">#{beforeData,jdbcType=VARCHAR},</if>
+                <if test="requestData != null">#{requestData,jdbcType=VARCHAR},</if>
+                <if test="afterData != null">#{afterData,jdbcType=VARCHAR},</if>
+                <if test="createdAt != null">#{createdAt,jdbcType=TIMESTAMP},</if>
+                <if test="updatedAt != null">#{updatedAt,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.propertysupervision.persistence.entity.SupAccountChange">
+        update sup_account_change
+        <set>
+                <if test="businessOrderId != null">
+                    business_order_id = #{businessOrderId,jdbcType=BIGINT},
+                </if>
+                <if test="accountId != null">
+                    account_id = #{accountId,jdbcType=BIGINT},
+                </if>
+                <if test="platformFundNo != null">
+                    platform_fund_no = #{platformFundNo,jdbcType=VARCHAR},
+                </if>
+                <if test="communityNo != null">
+                    community_no = #{communityNo,jdbcType=VARCHAR},
+                </if>
+                <if test="accountType != null">
+                    account_type = #{accountType,jdbcType=CHAR},
+                </if>
+                <if test="beforeData != null">
+                    before_data = #{beforeData,jdbcType=VARCHAR},
+                </if>
+                <if test="requestData != null">
+                    request_data = #{requestData,jdbcType=VARCHAR},
+                </if>
+                <if test="afterData != null">
+                    after_data = #{afterData,jdbcType=VARCHAR},
+                </if>
+                <if test="createdAt != null">
+                    created_at = #{createdAt,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updatedAt != null">
+                    updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.propertysupervision.persistence.entity.SupAccountChange">
+        update sup_account_change
+        set 
+            business_order_id =  #{businessOrderId,jdbcType=BIGINT},
+            account_id =  #{accountId,jdbcType=BIGINT},
+            platform_fund_no =  #{platformFundNo,jdbcType=VARCHAR},
+            community_no =  #{communityNo,jdbcType=VARCHAR},
+            account_type =  #{accountType,jdbcType=CHAR},
+            before_data =  #{beforeData,jdbcType=VARCHAR},
+            request_data =  #{requestData,jdbcType=VARCHAR},
+            after_data =  #{afterData,jdbcType=VARCHAR},
+            created_at =  #{createdAt,jdbcType=TIMESTAMP},
+            updated_at =  #{updatedAt,jdbcType=TIMESTAMP}
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+</mapper>
