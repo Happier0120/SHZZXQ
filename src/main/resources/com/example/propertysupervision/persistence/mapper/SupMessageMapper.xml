@@ -152,4 +152,25 @@
             raw_message =  #{rawMessage,jdbcType=BLOB}
         where   id = #{id,jdbcType=BIGINT}
     </update>
+
+    <update id="updateParsedFields">
+        update sup_message
+        set message_no = #{messageNo,jdbcType=VARCHAR},
+        summary_type = #{summaryType,jdbcType=CHAR},
+        child_type = #{childType,jdbcType=CHAR},
+        error_message = null,
+        updated_at = current_timestamp
+        where id = #{id,jdbcType=BIGINT}
+        and status = '0'
+    </update>
+
+    <update id="markParseFailed">
+        update sup_message
+        set status = #{status,jdbcType=CHAR},
+        error_message = #{errorMessage,jdbcType=VARCHAR},
+        updated_at = current_timestamp
+        where id = #{id,jdbcType=BIGINT}
+        and status = '0'
+    </update>
+
 </mapper>

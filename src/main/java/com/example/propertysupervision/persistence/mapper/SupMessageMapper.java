@@ -1,6 +1,7 @@
 package com.example.propertysupervision.persistence.mapper;
 
 import com.example.propertysupervision.persistence.entity.SupMessage;
+import org.apache.ibatis.annotations.Param;
 
 /**
 * @author 19828
@@ -21,5 +22,18 @@ public interface SupMessageMapper {
     int updateByPrimaryKeySelective(SupMessage record);
 
     int updateByPrimaryKey(SupMessage record);
+
+    int updateParsedFields(
+            @Param("id") Long id,
+            @Param("messageNo") String messageNo,
+            @Param("summaryType") String summaryType,
+            @Param("childType") String childType
+    );
+
+    int markParseFailed(
+            @Param("id") Long id,
+            @Param("status") String status,
+            @Param("errorMessage") String errorMessage
+    );
 
 }

@@ -9,8 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 @Component
-public final class PersistingInboundFrameProcessor
-        implements InboundFrameProcessor {
+public final class PersistingInboundFrameProcessor implements InboundFrameProcessor {
 
     private static final int TRANSACTION_CODE_OFFSET = 7;
     private static final int TRANSACTION_CODE_LENGTH = 4;
@@ -20,24 +19,34 @@ public final class PersistingInboundFrameProcessor
     private static final String STATUS_PROCESSING = "0";
 
     private final SupMessageMapper supMessageMapper;
+    private final InboundMessageDispatcher messageDispatcher;
 
     public PersistingInboundFrameProcessor(
-            SupMessageMapper supMessageMapper) {
+        SupMessageMapper supMessageMapper,
+        InboundMessageDispatcher messageDispatcher
+    ) {
 
         if (supMessageMapper == null) {
             throw new IllegalArgumentException(
-                    "SupMessageMapper不能为空"
+                "SupMessageMapper不能为空"
+            );
+        }
+
+        if (messageDispatcher == null) {
+            throw new IllegalArgumentException(
+                "InboundMessageDispatcher不能为空"
             );
         }
 
         this.supMessageMapper = supMessageMapper;
+        this.messageDispatcher = messageDispatcher;
+
     }
 
     @Override
     public void process(byte[] requestFrame) throws IOException {
 
-        if (requestFrame == null
-                || requestFrame.length < MINIMUM_FRAME_LENGTH) {
+        if (requestFrame == null || requestFrame.length < MINIMUM_FRAME_LENGTH) {
 
             throw new IOException(
                     "完整入站报文至少需要11字节"
@@ -52,10 +61,10 @@ public final class PersistingInboundFrameProcessor
          * 后续才能进行协议解析和业务处理。
          */
         String transactionCode = new String(
-                requestFrame,
-                TRANSACTION_CODE_OFFSET,
-                TRANSACTION_CODE_LENGTH,
-                StandardCharsets.US_ASCII
+            requestFrame,
+            TRANSACTION_CODE_OFFSET,
+            TRANSACTION_CODE_LENGTH,
+            StandardCharsets.US_ASCII
         );
 
         SupMessage message = new SupMessage();
@@ -67,30 +76,44 @@ public final class PersistingInboundFrameProcessor
          * 再保存一份副本，避免调用方后续修改原数组。
          */
         message.setRawMessage(
-                Arrays.copyOf(
-                        requestFrame,
-                        requestFrame.length
-                )
+            Arrays.copyOf(
+                requestFrame,
+                requestFrame.length
+            )
         );
 
         int affectedRows;
 
         try {
-            affectedRows =
-                    supMessageMapper.insertSelective(message);
+            affectedRows = supMessageMapper.insertSelective(message);
         } catch (RuntimeException exception) {
             throw new IOException(
-                    "保存入站原始报文失败，交易代码="
-                            + transactionCode,
+                "保存入站原始报文失败，交易代码="
+                    + transactionCode,
                     exception
             );
         }
 
         if (affectedRows != 1) {
             throw new IOException(
-                    "保存入站原始报文失败，影响行数="
-                            + affectedRows
+                "保存入站原始报文失败，影响行数="
+                    + affectedRows
             );
         }
+
+        if (message.getId() == null) {
+            throw new IOException(
+                "保存入站原始报文后未返回主键ID"
+            );
+        }
+
+        /*
+         * 报文已经落库，可以返回9999。
+         * 后面的完整解析由异步线程执行。
+         */
+        messageDispatcher.dispatch(
+            message.getId()
+        );
+
     }
 }
