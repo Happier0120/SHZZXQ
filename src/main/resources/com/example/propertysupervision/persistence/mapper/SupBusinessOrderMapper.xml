@@ -121,4 +121,14 @@
             updated_at =  #{updatedAt,jdbcType=TIMESTAMP}
         where   id = #{id,jdbcType=BIGINT} 
     </update>
+
+    <select id="selectByInitiatingMessageNo"
+            parameterType="java.lang.String"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sup_business_order
+        where initiating_message_no = #{initiatingMessageNo}
+    </select>
+
 </mapper>

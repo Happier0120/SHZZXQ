@@ -36,4 +36,9 @@ public interface SupMessageMapper {
             @Param("errorMessage") String errorMessage
     );
 
+    int bindBusinessOrder(
+            @Param("id") Long id,
+            @Param("businessOrderId") Long businessOrderId
+    );
+
 }

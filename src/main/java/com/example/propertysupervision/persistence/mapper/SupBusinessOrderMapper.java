@@ -22,4 +22,8 @@ public interface SupBusinessOrderMapper {
 
     int updateByPrimaryKey(SupBusinessOrder record);
 
+    SupBusinessOrder selectByInitiatingMessageNo(
+            String initiatingMessageNo
+    );
+
 }

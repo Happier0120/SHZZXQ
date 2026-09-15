@@ -22,4 +22,6 @@ public interface SupAccountChangeMapper {
 
     int updateByPrimaryKey(SupAccountChange record);
 
+    SupAccountChange selectByBusinessOrderId(Long businessOrderId);
+
 }
